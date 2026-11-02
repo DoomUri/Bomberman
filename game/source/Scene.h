@@ -18,10 +18,11 @@
 #include "Menu.h"
 #include "Cursor.h"
 #include "Info.h"
+#include "Exit.h"
 
 
 enum class GameState { MENU, MENU_IN, MENU_OUT_GAME, MENU_OUT, GAME, WIN };
-enum class MenuState { MAIN, CREDITS, INSTR, WIN, TIME, LVL1, LVL2, LVL3, LVL4, LVLBOSS, GAMEOVER, TIMEOVER};
+enum class MenuState { MAIN, CREDITS, INSTR, WIN, TIME, LVL1, LVL2, LVL3, LVL4, LVLBOSS, GAMEOVER, TIMEOVER, ESCAPE};
 
 class Scene
 {
@@ -43,6 +44,7 @@ public:
 	void enemy_killed();
 
 	void main_menu();
+	void escape();
 
 private:
 	void initShaders();
@@ -87,6 +89,11 @@ private:
 	// Elements del HUD
 	Info* info;
 
+	// Exit
+	Exit* exit;
+	bool exit_visible = true;
+	float exit_visible_time;
+
 	// Atributs afegits per implementació ràpida del control remot
 	bool explode_first_bomb;
 	bool remote_cooldown;
@@ -100,6 +107,7 @@ private:
 	MenuState menu_state;
 	GameState state;
 	bool door_closed;
+	int exit_render_time;
 
 	// Atributs per les transicions de menú
 	int menu_in_time, menu_out_time;

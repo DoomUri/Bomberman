@@ -9,9 +9,9 @@ images/tilesheetlvl2.png 	-- Tilesheet
 4    8cd                  4
 4 Y 8q   6      j   6H6   4
 4bccq          b9a   7    4
-4               opd  fY   4
-4B     8ccccd        f    4
-4    89q Y   j      bpccca4
+4               opd  nY   4
+4B     8ccccd             4
+4    89q Y   j      bcccca4
 4P  bpq     j           Dn4
 455555555555555555555555554
 422222222222222222222222224

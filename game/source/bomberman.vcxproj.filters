@@ -82,6 +82,12 @@
     <ClCompile Include="Minion.cpp">
       <Filter>Archivos de código fuente\Enemigos</Filter>
     </ClCompile>
+    <ClCompile Include="SoundManager.cpp">
+      <Filter>Archivos de código fuente\General</Filter>
+    </ClCompile>
+    <ClCompile Include="Exit.cpp">
+      <Filter>Archivos de código fuente\HUD</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimKeyframes.h">
@@ -159,6 +165,12 @@
     <ClInclude Include="Minion.h">
       <Filter>Archivos de encabezado\Enemigos</Filter>
     </ClInclude>
+    <ClInclude Include="SoundManager.h">
+      <Filter>Archivos de encabezado\General</Filter>
+    </ClInclude>
+    <ClInclude Include="Exit.h">
+      <Filter>Archivos de encabezado\HUD</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Archivos de código fuente">
@@ -188,9 +200,6 @@
     <Filter Include="Archivos de encabezado\General">
       <UniqueIdentifier>{b672576e-4332-4875-8f61-9c96026bfdb7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Archivos de encabezado\PowerUps">
-      <UniqueIdentifier>{1fb51aab-79ff-4d5b-95af-c045ad727526}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Archivos de código fuente\HUD">
       <UniqueIdentifier>{f6f1d548-c2f5-4c4e-a133-ab1ae22d598b}</UniqueIdentifier>
     </Filter>
@@ -202,6 +211,9 @@
     </Filter>
     <Filter Include="Archivos de encabezado\Menus">
       <UniqueIdentifier>{ef95c563-b663-439d-94ef-f170d42f5dfe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de encabezado\PowerUps">
+      <UniqueIdentifier>{1fb51aab-79ff-4d5b-95af-c045ad727526}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

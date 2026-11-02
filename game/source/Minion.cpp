@@ -2,7 +2,7 @@
 
 #define ENEMY_SIZE 16.f
 #define ENEMY_MOVING_SPEED 0.5f
-#define GRAVITY 2.f         // Solo se aplicara si esta sobre un suelo rompible que se rompe
+#define GRAVITY 0.05f         // Solo se aplicara si esta sobre un suelo rompible que se rompe
 
 #define STOP_MOVING_TIME 2000.f
 
@@ -35,62 +35,42 @@ void Minion::init(const glm::vec2& pos, const glm::ivec2& tileMapDispl, ShaderPr
 
 // FUNCIONES DE JUEGO
 void Minion::updateLogic(int deltaTime, TileMap* map, glm::vec2 player_pos) {
-    if (pauseTimer > 0.0f) {
-        pauseTimer -= deltaTime;
-        applyGravity(map);
 
-        sprite->setFlipped(movingRight);
-        sprite->setPosition(glm::vec2(tileDispl.x + position.x, tileDispl.y + position.y));
-        sprite->update(deltaTime);
-        return;
+    int fallY = static_cast<int>(position.y);
+    float old_Y = position.y;
+    if (falling) {
+        position.y += gravity;
+        gravity += GRAVITY;
     }
-
-    // Detectar final plataforma
-    int probeX = movingRight ? static_cast<int>(position.x + ENEMY_SIZE) : static_cast<int>(position.x - 1);
-    int probeY = static_cast<int>(position.y + 1);
-
-    int dummyY = probeY;
-    bool hasFloorAhead = map->collisionMoveDown(glm::ivec2(probeX, probeY), glm::ivec2(1, ENEMY_SIZE), &dummyY);
-
-    if (!hasFloorAhead) {
-        movingRight = !movingRight;
-        pauseTimer = STOP_MOVING_TIME;
-        printf("");
+    if (map->collisionMoveDown(glm::ivec2(position.x, position.y + ENEMY_MOVING_SPEED), glm::vec2(ENEMY_SIZE, ENEMY_SIZE), &fallY)) {
+        position.y = old_Y;
+        gravity = 0;
+        falling = false;
     }
     else {
-        if (movingRight) {
-            position.x += ENEMY_MOVING_SPEED;
-            if (map->collisionMoveRight(glm::ivec2(position), glm::vec2(ENEMY_SIZE, ENEMY_SIZE))) {
-                position.x -= ENEMY_MOVING_SPEED;
-                movingRight = false;
-                pauseTimer = STOP_MOVING_TIME;
-            }
-        }
-        else {
+        falling = true;
+    }
+    if (movingRight) {
+        position.x += ENEMY_MOVING_SPEED;
+        if (map->collisionMoveRight(glm::ivec2(position), glm::vec2(ENEMY_SIZE, ENEMY_SIZE))) {
             position.x -= ENEMY_MOVING_SPEED;
-            if (map->collisionMoveLeft(glm::ivec2(position), glm::vec2(ENEMY_SIZE, ENEMY_SIZE))) {
-                position.x += ENEMY_MOVING_SPEED;
-                movingRight = true;
-                pauseTimer = STOP_MOVING_TIME;
-            }
+            movingRight = false;
+            pauseTimer = STOP_MOVING_TIME;
         }
     }
-
-    applyGravity(map);
+    else {
+        position.x -= ENEMY_MOVING_SPEED;
+        if (map->collisionMoveLeft(glm::ivec2(position), glm::vec2(ENEMY_SIZE, ENEMY_SIZE))) {
+            position.x += ENEMY_MOVING_SPEED;
+            movingRight = true;
+            pauseTimer = STOP_MOVING_TIME;
+        }
+    }
 
     sprite->setFlipped(movingRight);
     sprite->setPosition(glm::vec2(tileDispl.x + position.x, tileDispl.y + position.y));
     sprite->update(deltaTime);
     if (state == EnemyState::DEAD) inBossState = MinionState::INACTIVE;
-}
-
-// FUNCIONES AUXILIARES
-void Minion::applyGravity(TileMap* map) {
-    int fallY = static_cast<int>(position.y);
-    position.y += GRAVITY;
-    if (map->collisionMoveDown(glm::ivec2(position), glm::vec2(ENEMY_SIZE, ENEMY_SIZE), &fallY)) {
-        position.y = static_cast<float>(fallY);
-    }
 }
 
 void Minion::render() {

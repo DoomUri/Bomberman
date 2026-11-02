@@ -129,6 +129,8 @@ void Explosion::calculateExpansion(const glm::ivec2& center, int radius, ShaderP
             // Choque bloque destructible
             if (map->isDestructibleTile(gridX, gridY)) {
                 map->destroyTile(gridX, gridY);
+                affectedTiles.push_back(currentTile);
+                fireSprites.push_back(createFireSprite(endAnims[d], currentTile, shaderProgram));
                 break;
             }
 

@@ -17,6 +17,7 @@
     <ClInclude Include="Boss.h" />
     <ClInclude Include="Cursor.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="Exit.h" />
     <ClInclude Include="Explosion.h" />
     <ClInclude Include="FireUp.h" />
     <ClInclude Include="FloatingEnemy.h" />
@@ -33,6 +34,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="Projectile.h" />
+    <ClInclude Include="SoundManager.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TileMap.h" />
@@ -43,6 +45,7 @@
     <ClCompile Include="Boss.cpp" />
     <ClCompile Include="Cursor.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="Exit.cpp" />
     <ClCompile Include="Explosion.cpp" />
     <ClCompile Include="Heart.cpp" />
     <ClCompile Include="FireUp.cpp" />
@@ -60,6 +63,7 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="Projectile.cpp" />
+    <ClCompile Include="SoundManager.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TileMap.cpp" />

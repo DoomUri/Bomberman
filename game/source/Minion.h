@@ -26,6 +26,8 @@ private:
 private:
     // Atributos
     float pauseTimer = 0.0f;
+    float gravity = 0;
+    bool falling = false;
     bool movingRight;
     MinionState inBossState;
 };

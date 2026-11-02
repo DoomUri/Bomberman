@@ -7,6 +7,8 @@
 #include "Heart.h"
 #include "RemoteController.h"
 #include "Boss.h"
+#include "SoundManager.h"
+
 
 
 #define SCREEN_X 16
@@ -19,6 +21,10 @@
 #define MENU_OUT_TIME 1000.f
 
 #define CELEBRATION_TIME 3000.f;
+#define EXIT_RENDER_TIME 2000.f;
+#define EXIT_VISIBLE_TIME 50.f;
+
+#define LEVEL_TIME 4 * 60000; // 4 mins en ms
 
 
 // FUNCIONES DE OBJETO
@@ -67,6 +73,8 @@ void Scene::init(){
 	cursor->init();
 	info = new Info();
 	info->init(texProgram);
+	exit = new Exit();
+	exit->init(texProgram);
 	state = GameState::MENU;
 	menu_state = MenuState::MAIN;
 	menuCanChange = true;
@@ -120,7 +128,7 @@ MenuState Scene::lvl2menu(int i) {
 void Scene::init_level(int i) {
 
 	// Reset timer;
-	level_time = 0.1*60000; //4 * 60000; // 3 mins en ms
+	level_time = LEVEL_TIME; 
 	timeOut = false;
 
 	// Reset Bombas
@@ -212,7 +220,9 @@ void Scene::init_level(int i) {
 	player->reset();
 	updateCamera();
 
+	SoundManager::instance().playBGM("sound/music/World_Intro.mp3");
 	// Para la transición
+	
 }
 
 void Scene::main_menu() {
@@ -262,9 +272,22 @@ void Scene::update(int deltaTime) {
 		menuCanChange = false;
 	}
 
+	if (exit_render_time > 0) {
+		exit_render_time -= deltaTime;
+		if (exit_visible_time < 0) {
+			exit_visible = !exit_visible;
+			exit_visible_time = EXIT_VISIBLE_TIME;
+		}
+		else exit_visible_time -= deltaTime;
+	}
+
 	if (state == GameState::MENU) {
-		if (menu_state == MenuState::MAIN) cursor->update(deltaTime);
+		if (menu_state == MenuState::MAIN) {
+			cursor->update(deltaTime);
+		}
 		if (Game::instance().getKey(GLFW_KEY_ENTER) && menuCanChange) {
+			if (menu_state == MenuState::MAIN) SoundManager::instance().playSFX("sound/effects/Enter.wav");
+
 			state = GameState::MENU_IN;
 			menuCanChange = false;
 			menu_in_time = MENU_IN_TIME;
@@ -280,6 +303,7 @@ void Scene::update(int deltaTime) {
 				Pointing aux = cursor->getPointing();
 				if (aux == Pointing::PLAY) {
 					menu->setImage(1);
+					SoundManager::instance().playBGM("sound/music/Title_Screen.mp3");
 					init_level(1);
 				}
 				else if (aux == Pointing::CREDITS) {
@@ -291,11 +315,18 @@ void Scene::update(int deltaTime) {
 					menu_state = MenuState::INSTR;
 				}
 			}
-			else if (menu_state == MenuState::CREDITS || menu_state == MenuState::INSTR || menu_state == MenuState::WIN) {
+			else if (menu_state == MenuState::CREDITS || menu_state == MenuState::INSTR) {
 				main_menu();
+			}
+			else if (menu_state == MenuState::WIN) {
+				state = GameState::MENU;
+				menu->setImage(0);
+				SoundManager::instance().playBGM("sound/music/Title_Screen.mp3");
+				menu_state = MenuState::MAIN;
 			}
 			else if (menu_state == MenuState::GAMEOVER) {
 				menu->setImage(0);
+				SoundManager::instance().playBGM("sound/music/Title_Screen.mp3");
 				menu_state = MenuState::MAIN;
 				level = 1;
 			}
@@ -303,30 +334,45 @@ void Scene::update(int deltaTime) {
 				timeOut = false;
 				state = GameState::MENU_OUT_GAME;
 			}
-			else state = GameState::GAME;
+			else {
+				state = GameState::GAME;
+				SoundManager::instance().playBGM("sound/music/level" + to_string(level) + ".mp3");
+			}
 		}
      	menu_in_time -= deltaTime;
 	}
 
 	else if (state == GameState::MENU_OUT_GAME) {
 		if (menu_in_time < 0) {
-			if (menu_state == MenuState::WIN) {
+			if (menu_state == MenuState::ESCAPE) {
+				state = GameState::MENU;
+				menu->setImage(0);
+				SoundManager::instance().playBGM("sound/music/Title_Screen.mp3");
+				menu_state = MenuState::MAIN;
+				level = 1;
+			}
+			else if (menu_state == MenuState::WIN) {
 				state = GameState::MENU;
 				menu->setImage(10);
+				SoundManager::instance().playBGM("sound/music/Ending.mp3");
 			}
 			else if (timeOut) {
 				state = GameState::MENU;
 				menu_state = MenuState::TIMEOVER;
 				menu->setImage(11);
+				SoundManager::instance().playBGM("sound/music/Time_Over.mp3");
 			}
 			else if (player->getVidas() <= 0) {
 				state = GameState::MENU;
 				menu_state = MenuState::GAMEOVER;
 				menu->setImage(6);
 				player->gameOverReset();
+				SoundManager::instance().playBGM("sound/music/Game_Over.mp3");
+
 			}
 			else {
 				init_level(level);
+
 			}
 			menu_out_time = MENU_OUT_TIME;
 		}
@@ -404,6 +450,8 @@ void Scene::update(int deltaTime) {
 
 				delete* it;
 				it = activeBombs.erase(it);
+				SoundManager::instance().playSFX("sound/effects/Bomba.wav");
+
 			}
 			else {
 				if (player->isRemoteActive()) {
@@ -415,6 +463,7 @@ void Scene::update(int deltaTime) {
 
 						delete* it;
 						it = activeBombs.erase(it);
+						SoundManager::instance().playSFX("sound/effects/Bomba.wav");
 						explode_first_bomb = false;
 					}
 					else {
@@ -431,6 +480,8 @@ void Scene::update(int deltaTime) {
 
 						delete* it;
 						it = activeBombs.erase(it);
+						SoundManager::instance().playSFX("sound/effects/Bomba.wav");
+
 					}
 					else {
 						++it;
@@ -443,7 +494,7 @@ void Scene::update(int deltaTime) {
 		}
 
 		// Boss
-		if (activeBoss) {
+		if (activeBoss && boss != nullptr) {
 			boss->update(deltaTime, map, player->getPosition());
 			Minion* e = boss->getLeftMinion();
 			if (e->getState() == MinionState::ACTIVE && e->checkCollision(player->getPosition(), glm::ivec2(16, 16))) {
@@ -462,6 +513,8 @@ void Scene::update(int deltaTime) {
 				menu->setImage(10);
 				celebration_time = CELEBRATION_TIME;
 				player->win();
+
+				activeBoss = false;
 			}
 		}
 
@@ -499,6 +552,7 @@ void Scene::update(int deltaTime) {
 				for (const glm::ivec2& tilePixelPos : occupiedTiles) {
 					if ((*it)->hitsTile(tilePixelPos)) {
 						e->kill();
+						SoundManager::instance().playSFX("sound/effects/Muerte_Enemigo.wav");
 						--enemies;
 						break;
 					}
@@ -514,6 +568,8 @@ void Scene::update(int deltaTime) {
 					for (const glm::ivec2& tilePixelPos : occupiedTiles) {
 						if ((*it)->hitsTile(tilePixelPos)) {
 							e->kill();
+							SoundManager::instance().playSFX("sound/effects/Muerte_Enemigo.wav");
+
 							break;
 						}
 					}
@@ -524,6 +580,8 @@ void Scene::update(int deltaTime) {
 					for (const glm::ivec2& tilePixelPos : occupiedTiles) {
 						if ((*it)->hitsTile(tilePixelPos)) {
 							e->kill();
+							SoundManager::instance().playSFX("sound/effects/Muerte_Enemigo.wav");
+
 							break;
 						}
 					}
@@ -547,6 +605,8 @@ void Scene::update(int deltaTime) {
 
 				delete* it;
 				it = activePowerUps.erase(it);
+				SoundManager::instance().playSFX("sound/effects/Poder.wav");
+
 			}
 			else {
 				++it;
@@ -560,9 +620,14 @@ void Scene::update(int deltaTime) {
 		}
 
 		// Puerta
-		if (enemies == 0 && door_closed) {
+		if (enemies == 0 && door_closed && !activeBoss) {
 			map->open_door();
 			door_closed = false;
+			exit_render_time = EXIT_RENDER_TIME;
+			exit_visible = true;
+			exit_visible_time = EXIT_VISIBLE_TIME;
+			SoundManager::instance().playSFX("sound/effects/Puerta.wav");
+
 		}
 		if (!door_closed && map->doorCollision(player->getPosition())) { // Igual que arriba.
 			++level;
@@ -655,6 +720,18 @@ void Scene::render(){
 
 		// HUD
 		info->render();
+
+		// Exit
+		if (exit_render_time > 0 && level != 5) {
+			if (exit_visible) {
+				texProgram.use();
+				texProgram.setUniformMatrix4f("projection", glm::mat4(1.0f));
+				texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+				texProgram.setUniformMatrix4f("modelview", glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(0.25, 0.25, 1.0)), glm::vec3(0, 0.25, 1.0)));
+				texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
+				exit->render();
+			}
+		}
 	}
 }
 
@@ -706,4 +783,10 @@ void Scene::killAllEnemys() {
 
 void Scene::enemy_killed() {
 	--enemies;
+}
+
+void Scene::escape() {
+	state = GameState::MENU_OUT_GAME;
+	menu_in_time = MENU_IN_TIME;
+	menu_state = MenuState::ESCAPE;
 }

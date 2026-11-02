@@ -25,10 +25,9 @@ void Game::render()
 }
 
 #include<iostream>
-void Game::keyPressed(int key)
-{
+void Game::keyPressed(int key){
 	if (key == GLFW_KEY_ESCAPE) // Escape code
-		scene.main_menu();
+		scene.escape();
 	// Añadido para los comandos especiales
 	if (key == GLFW_KEY_G)
 		scene.setGodMode();
