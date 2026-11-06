@@ -2,7 +2,7 @@
 
 #define ENEMY_SIZE 16.f
 #define ENEMY_MOVING_SPEED 0.5f
-#define GRAVITY 0.05f         // Solo se aplicara si esta sobre un suelo rompible que se rompe
+#define GRAVITY 0.05f        
 
 #define STOP_MOVING_TIME 2000.f
 

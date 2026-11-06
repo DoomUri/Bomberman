@@ -34,7 +34,8 @@ public:
 	void activateHeart();
 	void activateRemote();
 
-	void die(bool by_bomb, int deltaTime);
+	bool die(bool by_bomb, int deltaTime);
+	void time_die();
 	bool isDead() const;
 	bool isDeathAnimationFinished() const;
 	int getVidas() const;

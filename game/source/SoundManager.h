@@ -15,6 +15,7 @@ public:
     bool init();
     void playSFX(const std::string& filepath);
     void playBGM(const std::string& filepath);
+    void playBGMOnce(const std::string& filepath);
     void stopBGM();
     void cleanUp();
 

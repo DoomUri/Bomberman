@@ -24,7 +24,7 @@
 #define EXIT_RENDER_TIME 2000.f;
 #define EXIT_VISIBLE_TIME 50.f;
 
-#define LEVEL_TIME 4 * 60000; // 4 mins en ms
+#define LEVEL_TIME 4*60000 //4 * 60000; // 4 mins en ms
 
 
 // FUNCIONES DE OBJETO
@@ -130,6 +130,7 @@ void Scene::init_level(int i) {
 	// Reset timer;
 	level_time = LEVEL_TIME; 
 	timeOut = false;
+	player_dying = false;
 
 	// Reset Bombas
 	for (Bomba* bomb : activeBombs) delete bomb;
@@ -281,6 +282,7 @@ void Scene::update(int deltaTime) {
 		else exit_visible_time -= deltaTime;
 	}
 
+	// S'està mostrant un menú.
 	if (state == GameState::MENU) {
 		if (menu_state == MenuState::MAIN) {
 			cursor->update(deltaTime);
@@ -295,6 +297,7 @@ void Scene::update(int deltaTime) {
 		if (!menuCanChange && !Game::instance().getKey(GLFW_KEY_ENTER)) menuCanChange = true;
 	}
 
+	// Estat en el que s'està anant d'un menú a un altre o d'un menú al joc.
 	else if (state == GameState::MENU_IN) {
 		if (menu_in_time < 0) {
 			state = GameState::MENU;
@@ -303,7 +306,7 @@ void Scene::update(int deltaTime) {
 				Pointing aux = cursor->getPointing();
 				if (aux == Pointing::PLAY) {
 					menu->setImage(1);
-					SoundManager::instance().playBGM("sound/music/Title_Screen.mp3");
+					//SoundManager::instance().playBGM("sound/music/Title_Screen.mp3");
 					init_level(1);
 				}
 				else if (aux == Pointing::CREDITS) {
@@ -315,7 +318,12 @@ void Scene::update(int deltaTime) {
 					menu_state = MenuState::INSTR;
 				}
 			}
+			else if (menu_state == MenuState::ESCAPE) {
+				SoundManager::instance().playBGM("sound/music/Title_Screen.mp3");
+				main_menu();
+			}
 			else if (menu_state == MenuState::CREDITS || menu_state == MenuState::INSTR) {
+				//SoundManager::instance().playBGM("sound/music/Title_Screen.mp3");
 				main_menu();
 			}
 			else if (menu_state == MenuState::WIN) {
@@ -342,6 +350,7 @@ void Scene::update(int deltaTime) {
      	menu_in_time -= deltaTime;
 	}
 
+	// Estat en el que s'està sortint del joc cap a un menú.
 	else if (state == GameState::MENU_OUT_GAME) {
 		if (menu_in_time < 0) {
 			if (menu_state == MenuState::ESCAPE) {
@@ -354,20 +363,20 @@ void Scene::update(int deltaTime) {
 			else if (menu_state == MenuState::WIN) {
 				state = GameState::MENU;
 				menu->setImage(10);
-				SoundManager::instance().playBGM("sound/music/Ending.mp3");
+				SoundManager::instance().playBGMOnce("sound/music/Ending.mp3");
 			}
 			else if (timeOut) {
 				state = GameState::MENU;
 				menu_state = MenuState::TIMEOVER;
 				menu->setImage(11);
-				SoundManager::instance().playBGM("sound/music/Time_Over.mp3");
+				SoundManager::instance().playBGMOnce("sound/music/Time_Over.mp3");
 			}
 			else if (player->getVidas() <= 0) {
 				state = GameState::MENU;
 				menu_state = MenuState::GAMEOVER;
 				menu->setImage(6);
 				player->gameOverReset();
-				SoundManager::instance().playBGM("sound/music/Game_Over.mp3");
+				SoundManager::instance().playBGMOnce("sound/music/Game_Over.mp3");
 
 			}
 			else {
@@ -381,9 +390,10 @@ void Scene::update(int deltaTime) {
 
 	else if (state == GameState::GAME) {
 
-		if(!timeOut) level_time -= deltaTime;
+		if(!timeOut && (!activeBoss || !boss->isDying())) level_time -= deltaTime;
 		if (level_time < 0) {
-			player->die(false, deltaTime);
+			player->time_die();
+			player_dying = true;
 			timeOut = true;			
 		}
 
@@ -420,7 +430,8 @@ void Scene::update(int deltaTime) {
 
 			// Daño al jugador
 			if ((*it)->checkCollision(player->getPosition(), glm::ivec2(16, 16))) {
-				player->die(false, deltaTime);
+				exit_render_time = 0;
+				player_dying = player->die(false, deltaTime);
 			}
 
 			if (!(*it)->isAlive()) {
@@ -498,14 +509,14 @@ void Scene::update(int deltaTime) {
 			boss->update(deltaTime, map, player->getPosition());
 			Minion* e = boss->getLeftMinion();
 			if (e->getState() == MinionState::ACTIVE && e->checkCollision(player->getPosition(), glm::ivec2(16, 16))) {
-				player->die(false, deltaTime);
+				player_dying = player->die(false, deltaTime);
 			}
 			e = boss->getRightMinion();
 			if (e->getState() == MinionState::ACTIVE && e->checkCollision(player->getPosition(), glm::ivec2(16, 16))) {
-				player->die(false, deltaTime);
+				player_dying = player->die(false, deltaTime);
 			}
 			if (boss->checkCollision(player->getPosition(), glm::ivec2(16, 16))) { // Tambien checkea los proyectiles.
-				player->die(false, deltaTime);
+				player_dying = player->die(false, deltaTime);
 			}
 			if (boss->isDead()) {
 				state = GameState::WIN;
@@ -513,7 +524,6 @@ void Scene::update(int deltaTime) {
 				menu->setImage(10);
 				celebration_time = CELEBRATION_TIME;
 				player->win();
-
 				activeBoss = false;
 			}
 		}
@@ -525,7 +535,6 @@ void Scene::update(int deltaTime) {
 			// Spawneamos todos los powerups que se hayan descubierto con la explosión
 			std::queue<EntitySpawn> powers = map->getPowerUpSpawns();
 			while (!powers.empty()) {
-				std::cout << powers.size() << endl;
 				spawnPower(powers.front());
 				powers.pop();
 			}
@@ -540,7 +549,7 @@ void Scene::update(int deltaTime) {
 
 			// Deteccion daño player
 			if ((*it)->hitsTile(player->getBombTilePosition(map->getTileSize()))) {
-				player->die(true, deltaTime);
+				player_dying = player->die(true, deltaTime);
 			}
 
 			// Daño al enemigo por explosiones
@@ -568,8 +577,6 @@ void Scene::update(int deltaTime) {
 					for (const glm::ivec2& tilePixelPos : occupiedTiles) {
 						if ((*it)->hitsTile(tilePixelPos)) {
 							e->kill();
-							SoundManager::instance().playSFX("sound/effects/Muerte_Enemigo.wav");
-
 							break;
 						}
 					}
@@ -580,8 +587,6 @@ void Scene::update(int deltaTime) {
 					for (const glm::ivec2& tilePixelPos : occupiedTiles) {
 						if ((*it)->hitsTile(tilePixelPos)) {
 							e->kill();
-							SoundManager::instance().playSFX("sound/effects/Muerte_Enemigo.wav");
-
 							break;
 						}
 					}
@@ -631,6 +636,7 @@ void Scene::update(int deltaTime) {
 		}
 		if (!door_closed && map->doorCollision(player->getPosition())) { // Igual que arriba.
 			++level;
+			exit_render_time = 0;
 			state = GameState::MENU_OUT_GAME;
 			menu_in_time = MENU_IN_TIME;
 		}
@@ -638,12 +644,14 @@ void Scene::update(int deltaTime) {
 		player->update(deltaTime);
 
 		// Actualitzem HUD
-		info->update(deltaTime, player, level_time, enemies);
+		if(!player_dying && !(state == GameState::WIN)) info->update(deltaTime, player, level_time, enemies);
 
 		// Para debug
+		/*
 		if (Game::instance().getKey(GLFW_KEY_J)) {
 			cout << "x: " << player->getPosition().x << ", y: " << player->getPosition().y << endl;
 		}
+		*/
 		updateCamera();
 	}
 
@@ -722,7 +730,7 @@ void Scene::render(){
 		info->render();
 
 		// Exit
-		if (exit_render_time > 0 && level != 5) {
+		if (exit_render_time > 0 && level != 5 && state == GameState::GAME) {
 			if (exit_visible) {
 				texProgram.use();
 				texProgram.setUniformMatrix4f("projection", glm::mat4(1.0f));
@@ -772,6 +780,7 @@ void Scene::updateCamera(){
 
 // Trucos
 void Scene::setGodMode() { player->setGodMode(); }
+
 void Scene::killAllEnemys() {
 	for (Enemy* e : activeEnemys) {
 		e->kill();
@@ -786,7 +795,16 @@ void Scene::enemy_killed() {
 }
 
 void Scene::escape() {
-	state = GameState::MENU_OUT_GAME;
-	menu_in_time = MENU_IN_TIME;
-	menu_state = MenuState::ESCAPE;
+	player->gameOverReset();
+	if (menu_state == MenuState::MAIN) return;
+	if (state == GameState::MENU) {
+		state = GameState::MENU_IN;
+		menu_in_time = MENU_IN_TIME;
+		menu_state = MenuState::ESCAPE;
+	}
+	else {
+		state = GameState::MENU_OUT_GAME;
+		menu_in_time = MENU_IN_TIME;
+		menu_state = MenuState::ESCAPE;
+	}
 }

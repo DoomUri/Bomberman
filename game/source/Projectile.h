@@ -24,6 +24,7 @@ public:
 
     //
     void activate(glm::vec2 pos, glm::vec2 direction);
+    void deactivate();
     ProjectileState getState();
 
 private:

@@ -59,7 +59,7 @@ void Info::init(ShaderProgram& program) {
 
 void Info::update(int deltaTime, Player* player, int level_time, int e){
 	remainingTime = level_time;
-	lifes = player->getVidas();
+	lifes = max(player->getVidas() - 1, 0); // Para mostrar vida 0;
 	heart = player->isHeartActive();
 	bombs = player->getMaxBombs();
 	remote = player->isRemoteActive();

@@ -60,6 +60,10 @@ void Projectile::activate(glm::vec2 pos, glm::vec2 dir) {
     direction = dir;
 }
 
+void Projectile::deactivate() {
+    state = ProjectileState::INACTIVE;
+}
+
 void Projectile::render() {
     if (state == ProjectileState::ACTIVE) {
         sprite->render();
@@ -67,8 +71,8 @@ void Projectile::render() {
 }
 
 bool Projectile::checkCollision(const glm::vec2 & playerPos, const glm::ivec2 & playerSize) const {
-    // Suposo player size de 12x16 
-    int sizeX = 12, sizeY = 16;
+    // Suposo player size de 10x14 
+    int sizeX = 10, sizeY = 14;
 
     int minx = position.x + (16 - projectileSize)/2.f;
     int maxx = minx + projectileSize;

@@ -8,7 +8,7 @@ images/tilesheetlvl4.png 	-- Tilesheet
 4             opq   oi4
 4 W R7              Df4
 48999q    7j7     bcci4
-4gppq     ohhd       f4
+4gppq     o9hd       f4
 4f         oq       Ff4
 4f     8a          89i4
 4fj W89hq         8hhq4

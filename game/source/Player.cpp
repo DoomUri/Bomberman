@@ -304,19 +304,20 @@ void Player::activateRemote() { remoteExplosion = true; };
 
 
 // Vidas
-void Player::die(bool by_bomb, int deltaTime) {
-	if (godMode || immunity) return;
-	if (bDead) return;
+bool Player::die(bool by_bomb, int deltaTime) {
+	if (godMode || immunity) return false;
+	if (bDead) return true;
 	if (heart) {
 		immunity = true;
 		heart_immunity = 0;
 		visible = true;
 		visible_time = VISIBLE_TIME;
 		heart = false;
-		return;
+		return false;
 	}
 	bDead = true;
 	vidas--;
+	remoteExplosion = false;
 	if (by_bomb) {
 		sprite->changeAnimation(DEATH_BY_BOMB);
 		deathTimer = DEATH_BOMB_ANIMATION_TIME;
@@ -328,8 +329,21 @@ void Player::die(bool by_bomb, int deltaTime) {
 
 	SoundManager::instance().stopBGM();
 	SoundManager::instance().playBGM("sound/effects/death.mp3");
-
+	return true;
 }
+
+void Player::time_die() {
+	if (bDead) return;
+	bDead = true;
+	vidas--;
+	remoteExplosion = false;
+	sprite->changeAnimation(DEATH_BY_ENEMY);
+	deathTimer = DEATH_ANIMATION_TIME;
+
+	SoundManager::instance().stopBGM();
+	SoundManager::instance().playBGM("sound/effects/death.mp3");
+}
+
 bool Player::isDeathAnimationFinished() const { return bDead && deathTimer <= 0.f; }
 bool Player::isDead() const { return bDead; }
 int Player::getVidas() const { return vidas; }
@@ -338,7 +352,8 @@ void Player::reset() {
 	bDead = false;
 	bJumping = false;
 	activeBombs = 0;
-	remoteExplosion = false;
+	flipped = true;
+	//remoteExplosion = false;
 	sprite->changeAnimation(STAND);
 }
 
@@ -374,4 +389,14 @@ void Player::win() {
 	sprite->changeAnimation(WIN); 
 	win_state = true;
 	winTimer = WIN_ANIMATION_TIME;
+	maxBombs = 1;
+	explosionRadius = 1;
+	vidas = 3;
+	heart = false;
+	heart_immunity = 0;
+	remoteExplosion = false;
+	bDead = false;
+	bJumping = false;
+	activeBombs = 0;
+	flipped = true;
 }

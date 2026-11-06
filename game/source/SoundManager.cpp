@@ -47,6 +47,25 @@ void SoundManager::playBGM(const std::string& filepath) {
     }
 }
 
+void SoundManager::playBGMOnce(const std::string& filepath) {
+    if (!isEngineInit) return;
+
+    if (isBGMPlaying) {
+        stopBGM();
+    }
+
+    ma_result result = ma_sound_init_from_file(
+        &engine, filepath.c_str(), MA_SOUND_FLAG_STREAM,
+        NULL, NULL, &bgmSound
+    );
+
+    if (result == MA_SUCCESS) {
+        ma_sound_set_looping(&bgmSound, MA_FALSE);
+        ma_sound_start(&bgmSound);
+        isBGMPlaying = true;
+    }
+}
+
 void SoundManager::stopBGM() {
     if (isBGMPlaying) {
         ma_sound_stop(&bgmSound);

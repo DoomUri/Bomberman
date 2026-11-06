@@ -5,6 +5,8 @@
 #include "Texture.h"
 #include "ShaderProgram.h"
 
+// Classe Menu: s'encarrega de pintar els menus quan no estem jugant: Menu principal, presentacions de nivells,
+// game over, time over, ... Es un quad texturat que es pinta amb matrius de transformació identitat.
 
 class Menu 
 {

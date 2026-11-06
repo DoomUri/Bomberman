@@ -1,7 +1,7 @@
 #include "Bomba.h"
 
 
-#define EXPLOSION_TIME 3000.f	// Tiempo de que tarda en explotar la bomba
+#define EXPLOSION_TIME 2000.f	// Tiempo de que tarda en explotar la bomba
 
 // FUNCIONES DE OBJETO
 Bomba::Bomba(){

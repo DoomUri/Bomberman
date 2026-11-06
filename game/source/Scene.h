@@ -108,6 +108,8 @@ private:
 	GameState state;
 	bool door_closed;
 	int exit_render_time;
+	bool player_dying;
+	bool boss_dying;
 
 	// Atributs per les transicions de menú
 	int menu_in_time, menu_out_time;

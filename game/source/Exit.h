@@ -7,6 +7,9 @@
 #include "ShaderProgram.h"
 
 
+// Classe Exit: Serveix per fer apareixer les lletres EXIT pampallugants al matar tots els enemics d'un nivell. Es un quad texturat
+// amb mètodes render() i init().
+
 class Exit
 {
 public:

@@ -9,6 +9,9 @@
 #include "Player.h"
 
 
+// Classe Info: classe que controla la barra d'informació. Carrega les textures necessaries, pregunta
+// la informació necessaria a Scene i dibuixa tota la info a partir de quads texturats.
+
 class Info
 {
 public:

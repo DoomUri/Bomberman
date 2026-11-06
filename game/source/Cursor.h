@@ -8,6 +8,9 @@
 
 enum class Pointing {PLAY, INST, CREDITS};
 
+// Classe Cursor: controla el triangle que apareix en el menú principal qu efa de cursor per
+// triar entre "Play", "Instructions" o "Credits".
+
 class Cursor
 {
 public:

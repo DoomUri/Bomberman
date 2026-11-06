@@ -47,9 +47,9 @@ float GhostEnemy::my_rand() {
 // FUNCIONES DE JUEGO
 void GhostEnemy::updateLogic(int deltaTime, TileMap* map, glm::vec2 player_pos) {
     float dist = glm::distance(position, player_pos);
-    if (dist < VISION) { // Persecució (possibilitat de fer-la fantasma)
+    if (dist < VISION) { // Persecució 
 
-                        // Falta retocar, es queda encallat a vegades.
+                 
 
         float old_x = position.x;
         float old_y = position.y;
@@ -58,7 +58,7 @@ void GhostEnemy::updateLogic(int deltaTime, TileMap* map, glm::vec2 player_pos) 
         position = position + ENEMY_MOVING_SPEED * direction/dist;
         random_direction = glm::vec2(my_rand(), my_rand()); // Para que después de seguirte no vaya en la misma direccion que antes (se puede quitar); 
         
-        int pos_y = static_cast<int>(position.y); // Rarete
+        int pos_y = static_cast<int>(position.y); 
         if (direction.y < 0.f) {
             if (map->collisionMoveUp(glm::ivec2(old_x, position.y), glm::vec2(ENEMY_SIZE, ENEMY_SIZE), &pos_y)){
                 position = glm::vec2(position.x, old_y);
@@ -83,7 +83,7 @@ void GhostEnemy::updateLogic(int deltaTime, TileMap* map, glm::vec2 player_pos) 
     else {
         glm::vec2 old_pos = position;
         position += ENEMY_MOVING_SPEED * random_direction / glm::length(random_direction);
-        int pos_y = static_cast<int>(position.y); // Rarete
+        int pos_y = static_cast<int>(position.y); 
         bool y_changed = false;
         if (random_direction.y < 0.f) {
             if (map->collisionMoveUp(glm::ivec2(position), glm::vec2(ENEMY_SIZE, ENEMY_SIZE), &pos_y)) {

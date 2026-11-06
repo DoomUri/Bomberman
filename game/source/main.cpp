@@ -68,6 +68,7 @@ int main(void){
 	// Inicializar el sistema de sonido
 	SoundManager::instance().init();
 	SoundManager::instance().playBGM("sound/music/Title_Screen.mp3");
+	//ma_sound_set_volume(&sound, 0.5f);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))

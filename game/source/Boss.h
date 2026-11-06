@@ -37,6 +37,7 @@ public:
 
     // Consultoras
     bool isDead();
+    bool isDying();
 
 private:
     // Render

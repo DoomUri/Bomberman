@@ -5,7 +5,7 @@
 #include <iostream>
 
 #define BOSS_SIZE 32.f
-#define BOSS_HITBOX_REDUCTION 8.f
+#define BOSS_HITBOX_REDUCTION 14.f
 
 #define BOSS_VELOCITY 2.f
 #define ATTACK1_TIME 1000.f
@@ -84,6 +84,7 @@ void Boss::init(const glm::vec2& pos, const glm::ivec2& tileMapDispl, ShaderProg
     sprite->setFlipped(1);
     sprite->setPosition(glm::vec2(tileDispl.x + position.x, tileDispl.y + position.y));
 
+    // Projectgils simples
     simpleNW = new Projectile();
     simpleNW->init(position, tileMapDispl, shaderProgram, ProjectileType::SIMPLE);
     simpleWS = new Projectile();
@@ -93,9 +94,11 @@ void Boss::init(const glm::vec2& pos, const glm::ivec2& tileMapDispl, ShaderProg
     simpleEN = new Projectile();
     simpleEN->init(position, tileMapDispl, shaderProgram, ProjectileType::SIMPLE);
 
+    // Projectil os
     heavy = new Projectile();
     heavy->init(position, tileMapDispl, shaderProgram, ProjectileType::HEAVY);
 
+    // Minions
     leftMinion = new Minion();
     leftMinion->init(position, tileMapDispl, shaderProgram);
     rightMinion = new Minion();
@@ -126,7 +129,8 @@ void Boss::update(int deltaTime, TileMap* map, glm::vec2 player_pos) {
             SoundManager::instance().playSFX("sound/effects/Muerte_Boss.wav");
             death_sound_time = 0;
         }
-
+        leftMinion->update(deltaTime, map, player_pos);
+        rightMinion->update(deltaTime, map, player_pos);
 
         return;
     }
@@ -134,6 +138,7 @@ void Boss::update(int deltaTime, TileMap* map, glm::vec2 player_pos) {
         glm::vec2 oldPos = position;
         position += BOSS_VELOCITY * direction / 4.f;
         int dummy = static_cast<int>(position.y);
+        // Actualitzem posició
         if (direction.x > 0 && map->collisionBorderMoveRight(glm::ivec2(position.x, oldPos.y), glm::vec2(BOSS_SIZE, BOSS_SIZE))) {
             direction = glm::vec2(-direction.x, direction.y);
             position = oldPos + BOSS_VELOCITY * direction / 4.f;
@@ -152,6 +157,7 @@ void Boss::update(int deltaTime, TileMap* map, glm::vec2 player_pos) {
             direction = glm::vec2(direction.x, -direction.y);
             position = oldPos + BOSS_VELOCITY * direction / 4.f;
         }
+        // Si ja toca el següent atac, el fem
         if (time_next_attack < 0 && simple_attack_finished) {
             if (next_attack == 0 && simple_attack_finished) {
                 state = BossState::ATTACK1;
@@ -190,12 +196,12 @@ void Boss::update(int deltaTime, TileMap* map, glm::vec2 player_pos) {
                 next_attack = rand() % NUMBER_ATTACKS;
                 attacking_time = 0;
             }
-            else next_attack = rand() % NUMBER_ATTACKS;
+            else next_attack = rand() % NUMBER_ATTACKS; // Si no em pogut fer l'atac que volíem, provem un altre.
         }
         sprite->setPosition(glm::vec2(tileDispl.x + position.x, tileDispl.y + position.y));
         
     }
-    else if (state == BossState::ATTACK1 || state == BossState::ATTACK3) {
+    else if (state == BossState::ATTACK1 || state == BossState::ATTACK3) { // Estat d'atac (canviem sprite)
         sprite->changeAnimation(1);
         if (attacking_time > ATTACK1_TIME) {
             state = BossState::MOVING;
@@ -203,6 +209,8 @@ void Boss::update(int deltaTime, TileMap* map, glm::vec2 player_pos) {
         }
         attacking_time += deltaTime;
     }
+
+    // Control d'atacs i actalitzaciño d'entitats 
     if (simpleNW->getState() == ProjectileState::INACTIVE && simpleWS->getState() == ProjectileState::INACTIVE &&
         simpleSE->getState() == ProjectileState::INACTIVE && simpleEN->getState() == ProjectileState::INACTIVE) {
         simple_attack_finished = true;
@@ -215,7 +223,6 @@ void Boss::update(int deltaTime, TileMap* map, glm::vec2 player_pos) {
     }
     if (!leftMinion->isAlive()) leftMinion->deactivate();
     if (!rightMinion->isAlive()) rightMinion->deactivate();
-    // Podria fer que es tractés només si està actiu.
     leftMinion->update(deltaTime, map, player_pos);
     rightMinion->update(deltaTime, map, player_pos);
     heavy->update(deltaTime, map, player_pos);
@@ -225,6 +232,8 @@ void Boss::update(int deltaTime, TileMap* map, glm::vec2 player_pos) {
     simpleEN->update(deltaTime, map, player_pos);
     time_next_attack -= deltaTime;
     sprite->update(deltaTime);
+
+    // Immunitat temporal al rebre mal.
     if (immunity_time > 0) {
         immunity_time -= deltaTime;
     }
@@ -260,13 +269,13 @@ void Boss::update(int deltaTime, TileMap* map, glm::vec2 player_pos) {
 void Boss::render() {
     if (state != BossState::DYING && state != BossState::DEAD) {
         heavy->render();
-        leftMinion->render();
-        rightMinion->render();
         simpleNW->render();
         simpleWS->render();
         simpleSE->render();
         simpleEN->render();
     }
+    leftMinion->render();
+    rightMinion->render();
     if (sprite && state != BossState::DEAD) {
         if (!immunity || visible) sprite->render();
     }
@@ -278,6 +287,8 @@ void Boss::render() {
 }
 
 // FUNCIONES AUXILIARES
+
+// Funció per comprovar si el Boss rep mal d'una explosió
 bool Boss::touchesExplosion(std::vector<glm::ivec2> affectedTiles, int tileSize) {
     for (auto it = affectedTiles.begin(); it != affectedTiles.end(); ++it) {
         int minx = (*it).x;
@@ -302,7 +313,6 @@ void Boss::getsDamage() {
         immunity = true;
         immunity_time = IMMUNITY_TIME;
         visible_time = VISIBLE_TIME;
-        std::cerr << vida << std::endl;
         if (vida == 0) {
             SoundManager::instance().stopBGM();
             death_sound_time = 0;
@@ -315,7 +325,16 @@ void Boss::getsDamage() {
 void Boss::kill() {
     state = BossState::DYING;
     deathTimer = DYING_TIME;
-    for (int i = 0; i < NUMBER_PARTICLES; ++i){
+    if (leftMinion->getState() == MinionState::ACTIVE) leftMinion->kill();
+    if (rightMinion->getState() == MinionState::ACTIVE) rightMinion->kill();
+    if (simpleNW->getState() == ProjectileState::ACTIVE) simpleNW->deactivate();
+    if (simpleWS->getState() == ProjectileState::ACTIVE) simpleWS->deactivate();
+    if (simpleSE->getState() == ProjectileState::ACTIVE) simpleSE->deactivate();
+    if (simpleEN->getState() == ProjectileState::ACTIVE) simpleEN->deactivate();
+    if (heavy->getState() == ProjectileState::ACTIVE) heavy->deactivate();
+
+    // Particules per a l'animació de mort del boss
+    for (int i = 0; i < NUMBER_PARTICLES; ++i) {
         Sprite* aux = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.5f, 0.5f), &particle_spritesheet, texProgram);
         aux->setNumberAnimations(1);
         aux->setAnimationSpeed(0, 6);
@@ -325,12 +344,10 @@ void Boss::kill() {
         aux->changeAnimation(0);
         aux->setPosition(glm::vec2(tileDispl.x + position.x - 10 + rand() % 37, tileDispl.y + position.y - 10 + rand() % 37));
         particles[i] = aux;
-        spawnTime[i] = rand() % DYING_TIME*0.7;
-        lifeTime[i] = rand() % DYING_TIME*0.5;
+        spawnTime[i] = rand() % DYING_TIME * 0.7;
+        lifeTime[i] = rand() % DYING_TIME * 0.5;
 
     }
-    if (leftMinion->getState() == MinionState::ACTIVE) leftMinion->kill();
-    if (rightMinion->getState() == MinionState::ACTIVE) rightMinion->kill();
     sprite->changeAnimation(2);
 
 }
@@ -339,6 +356,7 @@ Minion* Boss::getLeftMinion() { return leftMinion; }
 
 Minion* Boss::getRightMinion() { return rightMinion; }
 
+// Comprovem colisions amb el boss i els projectils.
 bool Boss::checkCollision(const glm::vec2& playerPos, const glm::ivec2& playerSize) const {
     if (simpleNW->getState() == ProjectileState::ACTIVE && simpleNW->checkCollision(playerPos, playerSize)) return true;
     if (simpleWS->getState() == ProjectileState::ACTIVE && simpleWS->checkCollision(playerPos, playerSize)) return true;
@@ -350,3 +368,5 @@ bool Boss::checkCollision(const glm::vec2& playerPos, const glm::ivec2& playerSi
 }
 
 bool Boss::isDead() { return state == BossState::DEAD; }
+
+bool Boss::isDying() { return state == BossState::DYING; }
