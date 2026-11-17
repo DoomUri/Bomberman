@@ -148,5 +148,4 @@ TRUCS
 - Amb la lletra G s'activa i desactiva la invencibilitat d'en Bomberman. (God mode)
 - Pot haver algun bug relacionat amb els trucs (què passa si s'acaba el temps i just cliquem la K, 
   o què passa si acabem el joc en God mode, o què passa si estem a la pantalla Game Over i cliquem l'1,
-  o què passsa si ...) Hem suposat que aquests trucs són per facilitar la correcció però 
-  no es tindran en compte bugs relacionats.
+  o què passsa si ...) 
