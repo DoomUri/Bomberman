@@ -1,0 +1,152 @@
+DESCRIPCIÓ GENERAL
+------------------
+Videojoc de plataformes i acció inspirat en els jocs clàssics de
+Bomberman i Pocket Bomberman. El jugador avança per diferents nivells,
+utilitza bombes per eliminar enemics i superar obstacles, recull millores
+i s'enfronta a un boss final.
+
+El joc està organitzat en cinc nivells principals i un combat final
+contra el boss. Els escenaris segueixen una progressió temàtica: bosc,
+oceà, temple/jungla, cel i zona final del boss.
+
+Joc desenvolupat per: Joel Fanals i Oriol Vinuesa.
+
+
+1. BOMBERMAN
+----------
+
+- Moviment horitzontal mitjançant les fletxes esquerra i dreta.
+- Salt mitjançant la tecla X, implementat simulant gravetat.
+- A partir del nivell 3 és necessari utilitzar les bombes per fer 
+  escales i arribar a zones que no es poden accedir amb el salt normal.
+  
+
+2. BOMBES I EXPLOSIONS
+----------------------
+
+- En Bomberman pot col·locar bombes durant la partida prement Z.
+- Les bombes exploten després del seu temporitzador.
+- Les explosions es propaguen des de la bomba i afecten les caselles que
+  assoleixen dins del seu abast.
+- Les explosions permeten eliminar enemics i destruir certs blocs (arbustos, 
+  algues, roques, núvols somrients i jerros).
+
+
+3. ENEMICS
+----------
+
+El joc inclou diferents tipus d'enemics:
+
+- Walker: enemic terrestre que es desplaça horitzontalment per la plataforma
+  on apareix.
+- Floating: enemic que es mou seguint una ona sinusoidal.
+- Ghost: enemic que es mou aleatòriament rebotant contra les parets/plataformes
+  i segueix el jugador si aquest és a prop.
+- Boss: enemic principal del combat final, es mou per l'escenari atravessant les 
+  plataformes i rebotant amb els marges del nivell. Fa un atac random entre els 3
+  disponibles. No pot realitzar un atac si encara està present en pantalla. Per exemple
+  no pot fer aparèixer minions si encara n'hi ha en pantalla. Si en el moment de realitzar
+  l'atac, no el pot fer, en fa un altre immediatament. Quan rep mal activa uns segons d'immunitat.
+- Minions: enemics auxiliars que formen part del combat contra el boss, tenen un 
+  comportament semblant al Walker, però poden caure de les plataformes i cauen seguint 
+  un MRUA. Es moren sols al cap d'una estona.
+- Projectils: s'han implementat dos tipus de projectils que pot disparar el boss. En
+  primer lloc projectils simples que dispara en les 4 diagonals i, en segon lloc, un 
+  projectil més gran en forma d'os que es dispara cap al Bomberman.
+  Els projectils travessen les plataformes igual que el boss. Decisió presa ja que
+  si desapareixien en xocar amb una plataforma no eren pràcticament una amença.
+
+Els enemics fan que el jugador hagi de combinar moviment, salts i
+ús estratègic de les bombes per avançar. Cada enemic presenta un repte diferent.
+
+
+4. POWER-UPS
+------------
+
+Durant els nivells es poden recollir quatre millores:
+
+BOMB UP
+  Augmenta en 1 el nombre de bombes que el jugador pot col·locar. S'ha 
+  establert un màxim de 4 igual que en el joc original.
+
+FIRE UP
+  Augmenta el rang de les bombes i, per tant, la distància que assoleixen
+  les seves explosions. S'ha establert un màxim de 4 igual que en el joc original.
+
+HEART
+  Concedeix un cor. Aquest cor permet evitar una mort. Si el jugador rep
+  mal amb el cor actiu, el perd i s'activen uns instants d'immunitat.
+  Només es pot tenir un cor actiu alhora. Si agafem aquest power-up 
+  tenint el cor actiu, no servirà de res.
+
+REMOTE CONTROLLER
+  Activa el control remot de les bombes. Un cop obtingut, el jugador pot
+  detonar-les prement C. Si el jugador perd una vida amb aquest power-up,
+  el perd (igual que en el Bomberman original).
+
+CONSELL:
+  Convé recollir tants power-ups com sigui possible abans d'arribar al boss.
+  Les millores acumulades faciliten el combat final.
+
+
+5. NIVELLS
+----------
+
+- El joc conté cinc nivells principals i un nivell/combat final
+  contra el boss.
+- Els nivells presenten una progressió d'escenaris temàtics:
+    1. Bosc
+    2. Oceà
+    3. Temple de la jungla
+    4. Núvols / Cel
+    5. Combat final.
+- Els nivells van introduint els enemics de manera progressiva perquè el
+  jugador aprengui com enfrontar-s'hi un per un.
+
+
+6. ALTRES
+---------
+
+MENÚS I PANTALLES
+- Menú principal amb les opcions Play, Instructions i Credits.
+- Pantalla d'instruccions amb els controls i l'explicació dels
+  power-ups.
+- Pantalla de crèdits amb el repartiment aproximat de responsabilitats.
+- Pantalla Game Over quan acaba la partida sense completar el joc.
+- Pantalla Time Over quan s'esgota el temps.
+- Pantalla You Won en completar els cinc nivells i derrotar el boss.
+- Es navega pels menús fent servir ENTER i fletxes amunt i avall.
+  Quan estem en les pantalles: Time Over, Game Over, You Won, Credits, Instruccions 
+  o presentació de qualsevol nivell, s'avança prement ENTER.
+- En qualsevol moment es pot prémer ESC i el joc torna a la pantalla principal.
+
+BARRA D'INFORMACIÓ
+- Barra d'informació integrada a la interfície durant la partida.
+- Presenta informació útil per seguir l'estat de la partida, es pot veure
+  el temps restant, les vides restants, si tenim el HEART, els enemics 
+  restants, les bombes disponibles i l'abast de les bombes.
+- No mostra si tenim el control remot actiu (igual que el Bomberman original),
+  ja que si col·loquem una bomba i triga massa en explotar ja ens adonem que 
+  tenim el control remot actiu.
+
+SO
+- El joc incorpora música de fons (BGM) i efectes de so (SFX).
+- La reproducció d'àudio està gestionada mitjançant miniaudio.
+
+TEMPS
+- Els nivells tenen un límit de 4 minuts per ser superats. Si no, en 
+  bomberman perd una vida.
+- Si s'acaba el temps i tenim el HEART actiu, perdem una vida però mantenim
+  el HEART. En altres paraules, el HEART no ens salva de la mort per temps, però
+  hem decidit que es mantingui actiu.
+
+TRUCS
+- Amb els números de l'1 al 5 es pot anar directament al nivell corresponent.
+  En fer servir aquests controls les transicions són seques (no hi ha fos a negre), 
+  ja que en principi no s'hauria de poder fer i per practicitat.
+- Amb la lletra K s'eliminen tots els enemics del nivell. (Kill all)
+- Amb la lletra G s'activa i desactiva la invencibilitat d'en Bomberman. (God mode)
+- Pot haver algun bug relacionat amb els trucs (què passa si s'acaba el temps i just cliquem la K, 
+  o què passa si acabem el joc en God mode, o què passa si estem a la pantalla Game Over i cliquem l'1,
+  o què passsa si ...) Hem suposat que aquests trucs són per facilitar la correcció però 
+  no es tindran en compte bugs relacionats.

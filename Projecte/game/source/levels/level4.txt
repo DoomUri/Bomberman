@@ -1,0 +1,27 @@
+TILEMAP
+23 22							-- Size of tile map in tiles
+16 16 							-- Tile size & block size
+images/tilesheetlvl4.png 	-- Tilesheet
+8 4 								-- Number of tiles in tilesheet
+12222222222222222222223
+4     Y      b999ccc9a4
+4             opq   oi4
+4 W R7              Df4
+48999q    7j7     bcci4
+4gppq     o9hd       f4
+4f         oq       Ff4
+4f     8a          89i4
+4fj W89hq         8hhq4
+4g999hpq      W 89hhq 4
+4ghppq  G    899hhpq  4
+4oq        j8hhhhq    4
+4        bc9hhhpq     4
+4          oppq       4
+4W    6           7 WH4
+48cd              occa4
+4n                   f4
+4       6   ba  Wj  8i4
+4   6        oc99999hi4
+4 P     Y     Bopppppq4
+45555555555555555555554
+42222222222222222222224
